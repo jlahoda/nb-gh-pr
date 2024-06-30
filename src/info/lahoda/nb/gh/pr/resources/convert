@@ -1,0 +1,1 @@
+for s in github-diff.svg github-logo.svg github-overview.svg github-pullrequest.svg github-tags.svg github-user.svg; do convert -background none $s `basename $s .svg`.png; done
