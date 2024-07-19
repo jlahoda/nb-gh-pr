@@ -19,6 +19,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.swing.Action;
@@ -27,12 +28,14 @@ import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
 import org.openide.actions.OpenAction;
 import org.openide.cookies.OpenCookie;
+import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.modules.Places;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
+import org.openide.util.Mutex;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.lookup.Lookups;
@@ -72,13 +75,15 @@ public class PullRequestNode extends PullRequestKeyBasedNode {
         }
 
         @Override
+        @Messages("DN_Retrieving=Retrieving properties...")
         protected void addNotify() {
-            List<Node> children = new ArrayList<>();
-            children.add(new NodeImpl(key, "info/lahoda/nb/gh/pr/resources/github-overview.png", Lookups.fixed(new OpenCookie() {
-                @Override
-                public void open() {
-                    //TODO: asynchronous
-                    try {
+            setKeys(Collections.singletonList(new WaitNode(Bundle.DN_Retrieving())));
+
+            Common.WORKER.post(() -> {
+                List<Node> children = new ArrayList<>();
+                children.add(new NodeImpl(key, "info/lahoda/nb/gh/pr/resources/github-overview.png", Lookups.fixed(new OpenBase() {
+                    @Override
+                    protected FileObject prepareFileToOpen() throws IOException {
                         GHPullRequest pr = key.getPullRequest();
                         File targetFile = Places.getCacheSubfile("gh/pr/" + repositoryName + "/" + pr.getNumber() + ".md");
 
@@ -86,48 +91,39 @@ public class PullRequestNode extends PullRequestKeyBasedNode {
                             Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                         }
 
-                        OpenCookie oc = FileUtil.toFileObject(targetFile).getLookup().lookup(OpenCookie.class);
+                        return FileUtil.toFileObject(targetFile);
+                    }
+                }), SystemAction.get(OpenAction.class)) {
+                    @Override
+                    protected void configureNodeFromPullRequest(GHPullRequest pr) {
+                        String body = pr.getBody();
+                        int lineEnd = body.indexOf('\n');
 
-                        if (oc != null) {
-                            oc.open();
+                        if (lineEnd == (-1)) {
+                            lineEnd = body.length();
                         }
-                    } catch (IOException ex) {
-                        Exceptions.printStackTrace(ex);
-                    }
-                }
-            }), SystemAction.get(OpenAction.class)) {
-                @Override
-                protected void configureNodeFromPullRequest(GHPullRequest pr) {
-                    String body = pr.getBody();
-                    int lineEnd = body.indexOf('\n');
 
-                    if (lineEnd == (-1)) {
-                        lineEnd = body.length();
+                        setDisplayName(body.substring(0, lineEnd));
+                        setShortDescription(body);
                     }
+                });
 
-                    setDisplayName(body.substring(0, lineEnd));
-                    setShortDescription(body);
-                }
-            });
-
-            children.add(new NodeImpl(key, "info/lahoda/nb/gh/pr/resources/github-user.png", Lookup.EMPTY) {
-                @Override
-                protected void configureNodeFromPullRequest(GHPullRequest pr) {
-                    String user = "<unknown>";
-                    try {
-                        GHUser ghUser = pr.getUser();
-                        user = ghUser.getName() + " (" + ghUser.getLogin() + ")";
-                    } catch (IOException ex) {
-                        Exceptions.printStackTrace(ex);
+                children.add(new NodeImpl(key, "info/lahoda/nb/gh/pr/resources/github-user.png", Lookup.EMPTY) {
+                    @Override
+                    protected void configureNodeFromPullRequest(GHPullRequest pr) {
+                        String user = "<unknown>";
+                        try {
+                            GHUser ghUser = pr.getUser();
+                            user = ghUser.getName() + " (" + ghUser.getLogin() + ")";
+                        } catch (IOException ex) {
+                            Exceptions.printStackTrace(ex);
+                        }
+                        setDisplayName(user);
                     }
-                    setDisplayName(user);
-                }
-            });
-            children.add(new NodeImpl(key, "info/lahoda/nb/gh/pr/resources/github-diff.png", Lookups.fixed(new OpenCookie() {
-                @Override
-                public void open() {
-                    //TODO: asynchronous
-                    try {
+                });
+                children.add(new NodeImpl(key, "info/lahoda/nb/gh/pr/resources/github-diff.png", Lookups.fixed(new OpenBase() {
+                    @Override
+                    protected FileObject prepareFileToOpen() throws IOException {
                         GHPullRequest pr = key.getPullRequest();
                         URL url = pr.getPatchUrl();
                         File targetFile = Places.getCacheSubfile("gh/pr/" + repositoryName + "/" + pr.getNumber() + ".diff");
@@ -136,35 +132,29 @@ public class PullRequestNode extends PullRequestKeyBasedNode {
                             Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                         }
 
-                        OpenCookie oc = FileUtil.toFileObject(targetFile).getLookup().lookup(OpenCookie.class);
-
-                        if (oc != null) {
-                            oc.open();
+                        return FileUtil.toFileObject(targetFile);
+                    }
+                }), SystemAction.get(OpenAction.class)) {
+                    @Override
+                    protected void configureNodeFromPullRequest(GHPullRequest pr) {
+                        String changedFiles = "<unknown>";
+                        try {
+                            changedFiles = String.valueOf(pr.getChangedFiles());
+                        } catch (IOException ex) {
+                            Exceptions.printStackTrace(ex);
                         }
-                    } catch (IOException ex) {
-                        Exceptions.printStackTrace(ex);
+                        setDisplayName(changedFiles + " changed files");
                     }
-                }
-            }), SystemAction.get(OpenAction.class)) {
-                @Override
-                protected void configureNodeFromPullRequest(GHPullRequest pr) {
-                    String changedFiles = "<unknown>";
-                    try {
-                        changedFiles = String.valueOf(pr.getChangedFiles());
-                    } catch (IOException ex) {
-                        Exceptions.printStackTrace(ex);
+                });
+                children.add(new NodeImpl(key, "info/lahoda/nb/gh/pr/resources/github-tags.png", Lookup.EMPTY) {
+                    @Override
+                    protected void configureNodeFromPullRequest(GHPullRequest pr) {
+                        setDisplayName(pr.getLabels().stream().map(l -> l.getName()).collect(Collectors.joining(", ")));
                     }
-                    setDisplayName(changedFiles + " changed files");
-                }
-            });
-            children.add(new NodeImpl(key, "info/lahoda/nb/gh/pr/resources/github-tags.png", Lookup.EMPTY) {
-                @Override
-                protected void configureNodeFromPullRequest(GHPullRequest pr) {
-                    setDisplayName(pr.getLabels().stream().map(l -> l.getName()).collect(Collectors.joining(", ")));
-                }
-            });
+                });
 
-            setKeys(children);
+                setKeys(children);
+            });
         }
 
     }
@@ -197,4 +187,26 @@ public class PullRequestNode extends PullRequestKeyBasedNode {
 
     }
 
+    private static abstract class OpenBase implements OpenCookie {
+
+        @Override
+        public void open() {
+            Common.WORKER.post(() -> {
+                try {
+                    FileObject toOpen = prepareFileToOpen();
+                    if (toOpen != null) {
+                        OpenCookie oc = toOpen.getLookup()
+                                              .lookup(OpenCookie.class);
+                        if (oc != null) {
+                            Mutex.EVENT.readAccess(oc::open);
+                        }
+                    }
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            });
+        }
+
+        protected abstract FileObject prepareFileToOpen() throws IOException;
+    }
 }

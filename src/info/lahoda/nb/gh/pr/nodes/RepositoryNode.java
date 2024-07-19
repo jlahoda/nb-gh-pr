@@ -39,6 +39,7 @@ import org.openide.nodes.Node;
 import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
+import org.openide.util.NbBundle.Messages;
 import org.openide.util.RequestProcessor.Task;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.lookup.Lookups;
@@ -109,6 +110,7 @@ public final class RepositoryNode extends AbstractNode {
 
     private static final class PullRequestsChildren extends Children.Keys<PullRequestKey> implements PreferenceChangeListener {
 
+        private static final PullRequestKey FAKE_WAIT_KEY = new PullRequestKey(-1);
         private final String username;
         private final GitHub gh;
         private final String repositoryName;
@@ -116,6 +118,7 @@ public final class RepositoryNode extends AbstractNode {
         private final Task refeshTask;
         private final AtomicBoolean visible = new AtomicBoolean();
         private final java.util.Map<Integer, PullRequestKey> prNumber2Key = new HashMap<>();
+        private List<PullRequestKey> currentPullRequests = Collections.emptyList();
 
         public PullRequestsChildren(String username, GitHub gh, String repositoryName) {
             super(true);
@@ -126,10 +129,13 @@ public final class RepositoryNode extends AbstractNode {
             this.refeshTask = Common.WORKER.create(() -> {
                 if (!visible.get()) {
                     prNumber2Key.clear();
-                    setKeys(Collections.emptyList());
+                    doSetKeys(Collections.emptyList());
                     return;
                 }
                 try {
+                    List<PullRequestKey> augmentedKeys = new ArrayList<>(currentPullRequests);
+                    augmentedKeys.add(FAKE_WAIT_KEY);
+                    setKeys(augmentedKeys);
                     GHRepository repository = gh.getRepository(repositoryName);
                     List<PullRequestKey> filteredPullRequest = new ArrayList<>();
                     for (GHPullRequest pr : repository.getPullRequests(GHIssueState.OPEN)) {
@@ -140,7 +146,7 @@ public final class RepositoryNode extends AbstractNode {
                             filteredPullRequest.add(key);
                         }
                     }
-                    setKeys(filteredPullRequest);
+                    doSetKeys(filteredPullRequest);
                 } catch (IOException ex) {
                     Exceptions.printStackTrace(ex);
                 }
@@ -153,9 +159,23 @@ public final class RepositoryNode extends AbstractNode {
             repositorySettings.addPreferenceChangeListener(this);
         }
 
+        private void doSetKeys(List<PullRequestKey> pullRequests) {
+            this.currentPullRequests = pullRequests;
+            setKeys(pullRequests);
+        }
+
         @Override
+        @Messages("DN_Refreshing=Refreshing Pull Requests")
         protected Node[] createNodes(PullRequestKey key) {
-            return new Node[]{new PullRequestNode(gh, repositoryName, key)};
+            Node result;
+
+            if (key == FAKE_WAIT_KEY) {
+                result = new WaitNode(Bundle.DN_Refreshing());
+            } else {
+                result = new PullRequestNode(gh, repositoryName, key);
+            }
+
+            return new Node[]{result};
         }
 
         @Override
