@@ -125,7 +125,7 @@ public class PullRequestNode extends PullRequestKeyBasedNode {
                     @Override
                     protected FileObject prepareFileToOpen() throws IOException {
                         GHPullRequest pr = key.getPullRequest();
-                        URL url = pr.getPatchUrl();
+                        URL url = pr.getDiffUrl();
                         File targetFile = Places.getCacheSubfile("gh/pr/" + repositoryName + "/" + pr.getNumber() + ".diff");
 
                         try (InputStream in = url.openStream()) {
