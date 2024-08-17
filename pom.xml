@@ -34,10 +34,6 @@
                     <archive>
                         <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
                     </archive>
-<!--                    <includes>
-                        <include>LICENSE</include>
-                        <include>NOTICE</include>
-                    </includes>-->
                 </configuration>
             </plugin>
       <plugin>
