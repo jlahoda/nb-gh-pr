@@ -15,6 +15,7 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -27,6 +28,7 @@ import java.util.prefs.Preferences;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import org.kohsuke.github.GitHub;
+import org.netbeans.api.keyring.Keyring;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.InputLine;
@@ -38,6 +40,7 @@ import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
 import org.openide.util.RequestProcessor.Task;
+import org.openide.util.Union2;
 import org.openide.util.actions.SystemAction;
 
 public final class RootNode extends AbstractNode {
@@ -85,12 +88,18 @@ public final class RootNode extends AbstractNode {
         ghSettings.put(new PropertySupport.ReadWrite<String>("token", String.class, "GitHub Personal Access Token", "GitHub Personal Access Token") {
             @Override
             public String getValue() throws IllegalAccessException, InvocationTargetException {
-                return Common.getPreferencesRoot().get(Common.PROP_TOKEN, "");
+                char[] token = Keyring.read(Common.PROP_TOKEN);
+                return token != null ? new String(token) : "";
             }
 
             @Override
             public void setValue(String val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-                Common.getPreferencesRoot().put(Common.PROP_TOKEN, val);
+                if (val.isEmpty()) {
+                    Keyring.delete(Common.PROP_TOKEN);
+                } else {
+                    Keyring.save(Common.PROP_TOKEN, val.toCharArray(), "OAuth token for GitHub");
+                }
+                Common.getPreferencesRoot().putInt(Common.PROP_TOKEN_UPDATED, Common.getPreferencesRoot().getInt(Common.PROP_TOKEN_UPDATED, 0) + 1);
             }
         });
         ghSettings.put(new PropertySupport.ReadWrite<Integer>("refreshRate", Integer.class, "Refresh Rate", "Refresh rate in milliseconds. When the given number of milliseconds elapses, the pull requests for all the repositories will be refreshed. Use -1 to disable.") {
@@ -116,7 +125,7 @@ public final class RootNode extends AbstractNode {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            InputLine inp = new InputLine("Repository name:", "Add new repository");
+            InputLine inp = new InputLine("Repository name: https://github.com/", "Add new repository");
             DialogDisplayer.getDefault().notifyFuture(inp).thenAccept(input -> {
                 if (input.getValue() == NotifyDescriptor.OK_OPTION) {
                     Preferences repositories = Common.getPreferencesRoot().node("repositories");
@@ -133,24 +142,37 @@ public final class RootNode extends AbstractNode {
         }
     }
 
-    private static final class RootChildren extends Children.Keys<RootChildren.RepositoryKey> implements PreferenceChangeListener, NodeChangeListener {
+    private static final class RootChildren extends Children.Keys<Union2<RootChildren.RepositoryKey, Node>> implements PreferenceChangeListener, NodeChangeListener {
 
         private final Task updateKeys = Common.WORKER.create(() -> {
             String login = Common.getPreferencesRoot().get(Common.PROP_USERNAME, null);
-            String token = Common.getPreferencesRoot().get(Common.PROP_TOKEN, null);
-            List<RepositoryKey> keys = new ArrayList<>();
-            if (login != null && !login.isEmpty() && token != null && !token.isEmpty()) {
+            char[] token = Keyring.read(Common.PROP_TOKEN);
+            List<Union2<RootChildren.RepositoryKey, Node>> keys = new ArrayList<>();
+            boolean hasAccessTokens = false;
+            boolean credentialsValid = false;
+            if (login != null && !login.isEmpty() && token != null && token.length > 0) {
+                hasAccessTokens = true;
+
                 try {
-                    GitHub gh = GitHub.connect(login, token);
+                    GitHub gh = GitHub.connect(login, new String(token));
                     if (gh.isCredentialValid()) {
+                        credentialsValid = true;
+
                         Preferences repositoriesNode = Common.getPreferencesRoot().node("repositories");
                         for (String repository : repositoriesNode.childrenNames()) {
-                            keys.add(new RepositoryKey(login, gh, repository.replace(':', '/')));
+                            keys.add(Union2.createFirst(new RepositoryKey(login, gh, repository.replace(':', '/'))));
                         }
                     }
                 } catch (IOException | BackingStoreException ex) {
                     Common.LOG.log(Level.FINE, null, ex);
                 }
+            }
+            if (!hasAccessTokens) {
+                keys.add(Union2.createSecond(new ErrorWarningNode("No GitHub credential provided - please right click inside this window, select Properties and specify login and OAuth token.", true)));
+            } else if (!credentialsValid) {
+                keys.add(Union2.createSecond(new ErrorWarningNode("Provided credentials are not valid", true)));
+            } else if (keys.isEmpty()) {
+                keys.add(Union2.createSecond(new ErrorWarningNode("No GitHub repositories specified - please right click inside this window and select Add Repository.", false)));
             }
             setKeys(keys);
         });
@@ -159,8 +181,9 @@ public final class RootNode extends AbstractNode {
         }
 
         @Override
-        protected Node[] createNodes(RepositoryKey key) {
-            return new Node[]{new RepositoryNode(key.username, key.gh, key.repositoryName)};
+        protected Node[] createNodes(Union2<RootChildren.RepositoryKey, Node> key) {
+            return new Node[]{key.hasFirst() ? new RepositoryNode(key.first().username, key.first().gh, key.first().repositoryName)
+                                             : key.second()};
         }
 
         @Override
@@ -175,7 +198,7 @@ public final class RootNode extends AbstractNode {
             //TODO: better synchronization (what if update is already scheduled/running?)
             Common.getPreferencesRoot().removePreferenceChangeListener(this);
             Common.getPreferencesRoot().node("repositories").removeNodeChangeListener(this);
-            setKeys(new RepositoryKey[0]);
+            setKeys(Collections.emptyList());
         }
 
         private void updateKeys() {
@@ -241,4 +264,17 @@ public final class RootNode extends AbstractNode {
         }
     }
 
+    private static final class ErrorWarningNode extends AbstractNode {
+
+        public ErrorWarningNode(String text, boolean error) {
+            super(Children.LEAF);
+            setDisplayName(text);
+            if (error) {
+                setIconBaseWithExtension("info/lahoda/nb/gh/pr/resources/error.png");
+            } else {
+                setIconBaseWithExtension("info/lahoda/nb/gh/pr/resources/warning.png");
+            }
+        }
+
+    }
 }

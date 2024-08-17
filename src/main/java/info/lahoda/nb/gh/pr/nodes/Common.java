@@ -21,7 +21,8 @@ public class Common {
     public static final RequestProcessor WORKER = new RequestProcessor(PullRequestNode.class.getName(), 1, false, false);
     public static final Logger LOG = Logger.getLogger(PullRequestNode.class.getPackage().getName());
     public static final String PROP_USERNAME = "username";
-    public static final String PROP_TOKEN = "oauthToken";
+    public static final String PROP_TOKEN = "nb-gh-pr/oauthToken";
+    public static final String PROP_TOKEN_UPDATED = "oauthTokenUpdated";
     public static final String PROP_LABELS = "labels";
     public static final String PROP_SHOW_ALL = "showAll";
     public static final String PROP_REFRESH_RATE = "labels";
