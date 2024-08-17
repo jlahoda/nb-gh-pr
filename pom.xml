@@ -3,8 +3,33 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>info.lahoda.nb</groupId>
     <artifactId>nb-gh-pr</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <packaging>nbm</packaging>
+
+    <name>Pull Requests from GitHub for Apache NetBeans</name>
+    <description>Allows to show pull requests from GitHub directly inside Apache NetBeans</description>
+    <url>https://github.com/jlahoda/nb-gh-pr</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Jan Lahoda</name>
+            <email>lahoda@gmail.com</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/jlahoda/nb-gh-pr.git</connection>
+        <developerConnection>scm:git:ssh://github.com:jlahoda/nb-gh-pr.git</developerConnection>
+        <url>https://github.com/jlahoda/nb-gh-pr/tree/main</url>
+    </scm>
+
     <build>
         <plugins>
             <plugin>
@@ -36,25 +61,38 @@
                     </archive>
                 </configuration>
             </plugin>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>3.1.0</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <configuration>
-              <target>
-                  <zip destfile="target/nb-gh-pr-${version}.nbm" update="true">
-                      <fileset dir="src/main/nbm/" includes="META-INF/**"/>
-                  </zip>
-              </target>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <zip destfile="target/nb-gh-pr-${version}.nbm" update="true">
+                                    <fileset dir="src/main/nbm/" includes="META-INF/**"/>
+                                </zip>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <dependencies>
