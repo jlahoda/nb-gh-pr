@@ -47,8 +47,8 @@ import org.openide.util.lookup.ProxyLookup;
         preferredID = "PullRequestsTopComponent"
 )
 @Messages({
-    "CTL_PullRequestsAction=PullRequests",
-    "CTL_PullRequestsTopComponent=PullRequests Window",
+    "CTL_PullRequestsAction=Pull Requests",
+    "CTL_PullRequestsTopComponent=Pull Requests",
     "HINT_PullRequestsTopComponent=This is a PullRequests window"
 })
 public final class PullRequestsTopComponent extends TopComponent implements ExplorerManager.Provider {
