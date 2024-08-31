@@ -52,7 +52,7 @@ public final class RepositoryNode extends AbstractNode {
     public RepositoryNode(String username, GitHub gh, String repositoryName) {
         super(new PullRequestsChildren(username, gh, repositoryName), Lookups.fixed());
         setDisplayName(repositoryName);
-        setIconBaseWithExtension("info/lahoda/nb/gh/pr/resources/github-logo.png");
+        setIconBaseWithExtension("info/lahoda/nb/gh/pr/resources/repo-16.png");
         this.repositoryName = repositoryName;
         actions = new Action[]{SystemAction.get(DeleteAction.class), null, PropertiesAction.get(PropertiesAction.class)};
     }
