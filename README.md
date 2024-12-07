@@ -1,5 +1,5 @@
 
-# Pull Requests in GitHub for NetBeans
+# Pull Requests from GitHub for NetBeans
 
 Show open Pull Requests from GitHub directly inside the NetBeans IDE.
 
