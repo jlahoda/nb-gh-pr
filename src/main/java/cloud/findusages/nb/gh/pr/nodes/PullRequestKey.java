@@ -9,7 +9,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package info.lahoda.nb.gh.pr.nodes;
+package cloud.findusages.nb.gh.pr.nodes;
 
 import javax.swing.event.ChangeListener;
 import org.kohsuke.github.GHPullRequest;

@@ -9,9 +9,9 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package info.lahoda.nb.gh.pr;
+package cloud.findusages.nb.gh.pr;
 
-import info.lahoda.nb.gh.pr.nodes.RootNode;
+import cloud.findusages.nb.gh.pr.nodes.RootNode;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.ActionMap;
@@ -31,7 +31,7 @@ import org.openide.util.lookup.ProxyLookup;
  * Top component which displays something.
  */
 @ConvertAsProperties(
-        dtd = "-//info.lahoda.nb.gh.pr//PullRequests//EN",
+        dtd = "-//cloud.findusages.nb.gh.pr//PullRequests//EN",
         autostore = false
 )
 @TopComponent.Description(
@@ -40,7 +40,7 @@ import org.openide.util.lookup.ProxyLookup;
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "navigator", openAtStartup = true)
-@ActionID(category = "Window", id = "info.lahoda.nb.gh.pr.PullRequestsTopComponent")
+@ActionID(category = "Window", id = "cloud.findusages.nb.gh.pr.PullRequestsTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(
         displayName = "#CTL_PullRequestsAction",

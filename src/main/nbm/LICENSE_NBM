@@ -200,7 +200,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
-Certain icons in src/info/lahoda/nb/gh/pr/resources are under the following license:
+Certain icons in src/cloud/findusages/nb/gh/pr/resources are under the following license:
 MIT License
 
 Copyright (c) 2024 GitHub Inc.
@@ -224,14 +224,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 This module bundles the following external components:
-modules/ext/info.lahoda.nb.nb-gh-pr/commons-io/commons-io.jar - Apache License version 2.0 - reproduced above
-modules/ext/info.lahoda.nb.nb-gh-pr/com-fasterxml-jackson-core/jackson-core.jar - Apache v2.0 + additional licenses, see below
-modules/ext/info.lahoda.nb.nb-gh-pr/com-fasterxml-jackson-core/jackson-annotations.jar - Apache License version 2.0 - reproduced above
-modules/ext/info.lahoda.nb.nb-gh-pr/com-fasterxml-jackson-core/jackson-databind.jar - Apache License version 2.0 - reproduced above
-modules/ext/info.lahoda.nb.nb-gh-pr/org-apache-commons/commons-lang3.jar - Apache License version 2.0 - reproduced above
-modules/ext/info.lahoda.nb.nb-gh-pr/org-kohsuke/github-api.jar - MIT license, see below
+modules/ext/cloud.findusages.nb.nb-gh-pr/commons-io/commons-io.jar - Apache License version 2.0 - reproduced above
+modules/ext/cloud.findusages.nb.nb-gh-pr/com-fasterxml-jackson-core/jackson-core.jar - Apache v2.0 + additional licenses, see below
+modules/ext/cloud.findusages.nb.nb-gh-pr/com-fasterxml-jackson-core/jackson-annotations.jar - Apache License version 2.0 - reproduced above
+modules/ext/cloud.findusages.nb.nb-gh-pr/com-fasterxml-jackson-core/jackson-databind.jar - Apache License version 2.0 - reproduced above
+modules/ext/cloud.findusages.nb.nb-gh-pr/org-apache-commons/commons-lang3.jar - Apache License version 2.0 - reproduced above
+modules/ext/cloud.findusages.nb.nb-gh-pr/org-kohsuke/github-api.jar - MIT license, see below
 
-modules/ext/info.lahoda.nb.nb-gh-pr/com-fasterxml-jackson-core/jackson-core.jar
+modules/ext/cloud.findusages.nb.nb-gh-pr/com-fasterxml-jackson-core/jackson-core.jar
 -------------------------------------------------------------------------------
 
 In addition to the Apache License version 2.0 (reproduced above), this jar also
@@ -313,7 +313,7 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-modules/ext/info.lahoda.nb.nb-gh-pr/org-kohsuke/github-api.jar
+modules/ext/cloud.findusages.nb.nb-gh-pr/org-kohsuke/github-api.jar
 --------------------------------------------------------------
 
  Copyright (c) 2011- Kohsuke Kawaguchi and other contributors

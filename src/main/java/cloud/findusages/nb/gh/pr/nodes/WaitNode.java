@@ -9,7 +9,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package info.lahoda.nb.gh.pr.nodes;
+package cloud.findusages.nb.gh.pr.nodes;
 
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
@@ -19,7 +19,7 @@ public class WaitNode extends AbstractNode {
     public WaitNode(String displayName) {
         super(Children.LEAF);
         setDisplayName(displayName);
-        setIconBaseWithExtension("info/lahoda/nb/gh/pr/resources/wait.gif");
+        setIconBaseWithExtension("cloud/findusages/nb/gh/pr/resources/wait.gif");
     }
 
 }

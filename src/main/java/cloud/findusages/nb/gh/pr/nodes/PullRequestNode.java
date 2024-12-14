@@ -9,7 +9,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package info.lahoda.nb.gh.pr.nodes;
+package cloud.findusages.nb.gh.pr.nodes;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -49,7 +49,7 @@ public class PullRequestNode extends PullRequestKeyBasedNode {
 
     public PullRequestNode(GitHub gh, String repositoryName, PullRequestKey key) {
         super(key, new PRKeys(repositoryName, key), Lookup.EMPTY);
-        setIconBaseWithExtension("info/lahoda/nb/gh/pr/resources/git-pull-request-16.png");
+        setIconBaseWithExtension("cloud/findusages/nb/gh/pr/resources/git-pull-request-16.png");
     }
 
     @Override
@@ -81,7 +81,7 @@ public class PullRequestNode extends PullRequestKeyBasedNode {
 
             Common.WORKER.post(() -> {
                 List<Node> children = new ArrayList<>();
-                children.add(new NodeImpl(key, "info/lahoda/nb/gh/pr/resources/info-16.png", Lookups.fixed(new OpenBase() {
+                children.add(new NodeImpl(key, "cloud/findusages/nb/gh/pr/resources/info-16.png", Lookups.fixed(new OpenBase() {
                     @Override
                     protected FileObject prepareFileToOpen() throws IOException {
                         GHPullRequest pr = key.getPullRequest();
@@ -108,7 +108,7 @@ public class PullRequestNode extends PullRequestKeyBasedNode {
                     }
                 });
 
-                children.add(new NodeImpl(key, "info/lahoda/nb/gh/pr/resources/person-16.png", Lookup.EMPTY) {
+                children.add(new NodeImpl(key, "cloud/findusages/nb/gh/pr/resources/person-16.png", Lookup.EMPTY) {
                     @Override
                     protected void configureNodeFromPullRequest(GHPullRequest pr) {
                         String user = "<unknown>";
@@ -121,7 +121,7 @@ public class PullRequestNode extends PullRequestKeyBasedNode {
                         setDisplayName(user);
                     }
                 });
-                children.add(new NodeImpl(key, "info/lahoda/nb/gh/pr/resources/file-diff-16.png", Lookups.fixed(new OpenBase() {
+                children.add(new NodeImpl(key, "cloud/findusages/nb/gh/pr/resources/file-diff-16.png", Lookups.fixed(new OpenBase() {
                     @Override
                     protected FileObject prepareFileToOpen() throws IOException {
                         GHPullRequest pr = key.getPullRequest();
@@ -146,7 +146,7 @@ public class PullRequestNode extends PullRequestKeyBasedNode {
                         setDisplayName(changedFiles + " changed files");
                     }
                 });
-                children.add(new NodeImpl(key, "info/lahoda/nb/gh/pr/resources/tag-16.png", Lookup.EMPTY) {
+                children.add(new NodeImpl(key, "cloud/findusages/nb/gh/pr/resources/tag-16.png", Lookup.EMPTY) {
                     @Override
                     protected void configureNodeFromPullRequest(GHPullRequest pr) {
                         setDisplayName(pr.getLabels().stream().map(l -> l.getName()).collect(Collectors.joining(", ")));

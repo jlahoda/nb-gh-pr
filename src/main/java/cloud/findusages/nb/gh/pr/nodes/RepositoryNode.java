@@ -9,7 +9,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package info.lahoda.nb.gh.pr.nodes;
+package cloud.findusages.nb.gh.pr.nodes;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -52,7 +52,7 @@ public final class RepositoryNode extends AbstractNode {
     public RepositoryNode(String username, GitHub gh, String repositoryName) {
         super(new PullRequestsChildren(username, gh, repositoryName), Lookups.fixed());
         setDisplayName(repositoryName);
-        setIconBaseWithExtension("info/lahoda/nb/gh/pr/resources/repo-16.png");
+        setIconBaseWithExtension("cloud/findusages/nb/gh/pr/resources/repo-16.png");
         this.repositoryName = repositoryName;
         actions = new Action[]{SystemAction.get(DeleteAction.class), null, PropertiesAction.get(PropertiesAction.class)};
     }

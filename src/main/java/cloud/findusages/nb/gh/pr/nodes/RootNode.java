@@ -9,7 +9,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package info.lahoda.nb.gh.pr.nodes;
+package cloud.findusages.nb.gh.pr.nodes;
 
 import java.awt.event.ActionEvent;
 import java.io.IOException;
@@ -270,9 +270,9 @@ public final class RootNode extends AbstractNode {
             super(Children.LEAF);
             setDisplayName(text);
             if (error) {
-                setIconBaseWithExtension("info/lahoda/nb/gh/pr/resources/error.png");
+                setIconBaseWithExtension("cloud/findusages/nb/gh/pr/resources/error.png");
             } else {
-                setIconBaseWithExtension("info/lahoda/nb/gh/pr/resources/warning.png");
+                setIconBaseWithExtension("cloud/findusages/nb/gh/pr/resources/warning.png");
             }
         }
 
